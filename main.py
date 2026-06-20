@@ -1442,14 +1442,11 @@ def main():
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
-
     mate = DesktopMate()
     dashboard = CatDashboard(mate)
-
     mate.show()
     dashboard.show()
-
     sys.exit(app.exec())
-
+    
 if __name__ == "__main__":
     main()
