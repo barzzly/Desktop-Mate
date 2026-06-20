@@ -230,8 +230,8 @@ class CatDashboard(QWidget):
         w, h = map(int, size_str.split(" x "))
         self.mascot.mascot_size = QSize(w, h)
         self.mascot.load_sprites()
-        # Resize window biar ada ruang melayang hati di atasnya ya Putri cantik
-        self.mascot.resize(w, h + h // 2)
+        # Resize window biar ada ruang melayang hati dan balon teks di atasnya ya Putri cantik (lebar x2, tinggi x2)
+        self.mascot.resize(w * 2, h * 2)
         self.mascot.update()
 
     def change_glide_speed(self, value):
@@ -358,9 +358,8 @@ class DesktopMate(QWidget):
         
         # Letakkan posisi awal kucing di tengah layar ya Putri cantik
         screen_geometry = QGuiApplication.primaryScreen().availableGeometry()
-        start_x = screen_geometry.width() // 2 - self.mascot_size.width() // 2
-        # Tengahkan koordinat Y dengan menghitung tinggi ekstra ruang hati ya Putri cantik
-        start_y = screen_geometry.height() // 2 - (self.mascot_size.height() + self.mascot_size.height() // 2) // 2
+        start_x = screen_geometry.width() // 2 - self.width() // 2
+        start_y = screen_geometry.height() // 2 - self.height() // 2
         self.move(start_x, start_y)
         
         # Inisialisasi deteksi ngetik global ya Putri cantik
@@ -803,8 +802,8 @@ class DesktopMate(QWidget):
         
         # Bikin background jendelanya transparan ya Putri cantik
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        # Tambahkan tinggi jendela sebesar 50% biar hati gak terpotong pas melayang ke atas ya Putri cantik
-        self.resize(self.mascot_size.width(), self.mascot_size.height() + self.mascot_size.height() // 2)
+        # Ubah ukuran jendela menjadi lebar x2 dan tinggi x2 biar tidak ada yang terpotong ya Putri cantik
+        self.resize(self.mascot_size.width() * 2, self.mascot_size.height() * 2)
         
         # Kita aktifkan sensor deteksi kursor mouse biar bisa dielus ya Putri cantik
         self.setMouseTracking(True)
@@ -1004,10 +1003,11 @@ class DesktopMate(QWidget):
         
         # Batasan area layar biar kucing gak meluncur keluar layar ya Putri cantik
         screen_geometry = QGuiApplication.primaryScreen().availableGeometry()
-        min_x = screen_geometry.left()
-        max_x = screen_geometry.right() - self.mascot_size.width()
+        horizontal_padding = (self.width() - self.mascot_size.width()) // 2
+        min_x = screen_geometry.left() - horizontal_padding
+        max_x = screen_geometry.right() - self.width() + horizontal_padding
         min_y = screen_geometry.top()
-        max_y = screen_geometry.bottom() - (self.mascot_size.height() + self.mascot_size.height() // 2)
+        max_y = screen_geometry.bottom() - self.height()
 
         # --- SISTEM ALARM / PENGINGAT LOMPAT ---
         if self.alarm_active and not self.alarm_firing:
@@ -1051,11 +1051,11 @@ class DesktopMate(QWidget):
         
         # Batasan area layar biar kucing gak meluncur keluar layar ya Putri cantik
         screen_geometry = QGuiApplication.primaryScreen().availableGeometry()
-        min_x = screen_geometry.left()
-        max_x = screen_geometry.right() - self.mascot_size.width()
+        horizontal_padding = (self.width() - self.mascot_size.width()) // 2
+        min_x = screen_geometry.left() - horizontal_padding
+        max_x = screen_geometry.right() - self.width() + horizontal_padding
         min_y = screen_geometry.top()
-        # Hitung tinggi maksimal dengan menyertakan area kosong hati agar kaki kucing tetap menempel di bawah ya Putri cantik
-        max_y = screen_geometry.bottom() - (self.mascot_size.height() + self.mascot_size.height() // 2)
+        max_y = screen_geometry.bottom() - self.height()
         
         # --- SISTEM ENERGI / CAPEK TIDUR ---
         if self.state == "sleep":
@@ -1144,9 +1144,9 @@ class DesktopMate(QWidget):
             
         # 2. Hitung koordinat target (Kursor mouse di tengah-tengah tubuh kucingnya ya Putri cantik)
         cursor_pos = QCursor.pos()
-        target_x = cursor_pos.x() - self.mascot_size.width() // 2
+        target_x = cursor_pos.x() - self.width() // 2
         # Target y dihitung dari bawah jendela karena kucing digambar di bagian bawah ya Putri cantik
-        target_y = cursor_pos.y() - self.mascot_size.height()
+        target_y = cursor_pos.y() - self.height()
         
         dx = target_x - x
         dy = target_y - y
@@ -1200,21 +1200,22 @@ class DesktopMate(QWidget):
 
     def spawn_heart(self):
         """Fungsi ini buat bikin efek hati kecil melayang pas dielus ya Putri cantik"""
-        w = self.mascot_size.width()
-        h = self.mascot_size.height()
-        vertical_padding = h // 2
+        w = self.width()
+        h = self.height()
+        vertical_padding = h - self.mascot_size.height()
+        horizontal_padding = (w - self.mascot_size.width()) // 2
         
         # Batasan spawn horizontal (sekitar kepala kucing) menyesuaikan ukuran ya Putri cantik
-        hx = random.uniform(w * 0.25, w * 0.75)
+        hx = horizontal_padding + random.uniform(self.mascot_size.width() * 0.25, self.mascot_size.width() * 0.75)
         # Batasan spawn vertikal (dekat telinga/kepala kucing)
-        hy = vertical_padding + random.uniform(h * 0.1, h * 0.3)
+        hy = vertical_padding + random.uniform(self.mascot_size.height() * 0.1, self.mascot_size.height() * 0.3)
         
         # Ukuran hati menyesuaikan ukuran kucingnya ya Putri cantik
-        pixel_size = max(1, w // 50)
+        pixel_size = max(1, self.mascot_size.width() // 50)
         
         # Kecepatan melayang menyesuaikan ukuran kucing biar natural ya Putri cantik
-        speed_x = random.uniform(-0.005 * w, 0.005 * w)
-        speed_y = random.uniform(0.012 * h, 0.024 * h)
+        speed_x = random.uniform(-0.005 * self.mascot_size.width(), 0.005 * self.mascot_size.width())
+        speed_y = random.uniform(0.012 * self.mascot_size.height(), 0.024 * self.mascot_size.height())
         
         self.hearts.append({
             'x': float(hx),
@@ -1249,14 +1250,14 @@ class DesktopMate(QWidget):
     # --- Sensor Mouse Hover saat kucingnya dielus ya Putri cantik ---
     def enterEvent(self, event):
         self.is_hovered = True
-        if self.state != "sleep": # Jangan ganggu kucing tidur ya Putri cantik
+        if self.state != "sleep" and not self.alarm_firing: # Jangan ganggu kucing tidur atau alarm ya Putri cantik
             self.change_state("pet")
         event.accept()
         
     def leaveEvent(self, event):
         self.is_hovered = False
         self.hearts = []
-        if self.state != "sleep":
+        if self.state != "sleep" and not self.alarm_firing:
             if self.follow_cursor:
                 self.change_state("idle")
             else:
@@ -1267,8 +1268,11 @@ class DesktopMate(QWidget):
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             # Hanya ijinkan seret (drag) jika klik berada di area tubuh kucing ya Putri cantik
-            vertical_padding = self.mascot_size.height() // 2
-            if event.position().y() >= vertical_padding:
+            vertical_padding = self.height() - self.mascot_size.height()
+            horizontal_padding = (self.width() - self.mascot_size.width()) // 2
+            x = event.position().x()
+            y = event.position().y()
+            if horizontal_padding <= x <= horizontal_padding + self.mascot_size.width() and y >= vertical_padding:
                 self.is_dragging = True
                 # Simpan posisi awal klik untuk mendeteksi apakah ini klik biasa atau seret ya Putri cantik
                 self.press_pos = event.globalPosition().toPoint()
@@ -1320,9 +1324,10 @@ class DesktopMate(QWidget):
         # 1. Gambar badan kucingnya di bagian bawah jendela biar ada sisa transparan di atas untuk hati melayang ya Putri cantik
         sprite_name = self.get_current_sprite_name()
         pixmap = self.sprites.get(sprite_name)
-        vertical_padding = self.mascot_size.height() // 2
+        vertical_padding = self.height() - self.mascot_size.height()
+        horizontal_padding = (self.width() - self.mascot_size.width()) // 2
         if pixmap:
-            painter.drawPixmap(0, vertical_padding, pixmap)
+            painter.drawPixmap(horizontal_padding, vertical_padding, pixmap)
             
         # 2. Gambar tag nama di atas kepala kucing ya Putri cantik
         if hasattr(self, 'pet_name') and self.pet_name:
