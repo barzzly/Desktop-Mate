@@ -9,7 +9,6 @@ from PyQt6.QtWidgets import (QApplication, QMenu, QSystemTrayIcon, QWidget,
                              QDialog, QVBoxLayout, QHBoxLayout, QLabel, QSlider,
                              QComboBox, QPushButton, QProgressBar, QCheckBox, QLineEdit, QTimeEdit)
 
-
 def get_resource_path(relative_path):
     try:
         base_path = sys._MEIPASS
@@ -28,75 +27,76 @@ class CatDashboard(QWidget):
 
         self.setStyleSheet("""
             QWidget {
-                background-color:
+                background-color: #FFF0F5; /* LavenderBlush yang soft */
                 font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
             }
             QLabel {
-                color:
+                color: #C71585; /* MediumVioletRed biar kontras & imut */
                 font-weight: bold;
                 font-size: 13px;
             }
+            #TitleLabel {
                 font-size: 18px;
-                color:
+                color: #FF1493; /* DeepPink untuk judul utama */
                 margin-bottom: 10px;
             }
             QProgressBar {
-                border: 2px solid
+                border: 2px solid #FF69B4; /* HotPink border */
                 border-radius: 8px;
                 text-align: center;
-                color:
+                color: #C71585;
                 font-weight: bold;
-                background-color:
+                background-color: #FFFFFF;
             }
             QProgressBar::chunk {
-                background-color:
+                background-color: #FF69B4;
                 border-radius: 6px;
             }
             QPushButton {
-                background-color:
+                background-color: #FF69B4;
                 color: white;
-                border: 2px solid
+                border: 2px solid #FF1493;
                 border-radius: 12px;
                 padding: 6px 12px;
                 font-weight: bold;
                 font-size: 12px;
             }
             QPushButton:hover {
-                background-color:
+                background-color: #FF1493;
             }
             QPushButton:pressed {
-                background-color:
+                background-color: #C71585;
             }
             QCheckBox {
-                color:
+                color: #C71585;
                 font-weight: bold;
                 font-size: 13px;
             }
             QComboBox {
-                border: 2px solid
+                border: 2px solid #FF69B4;
                 border-radius: 6px;
                 padding: 4px;
                 background-color: white;
-                color:
+                color: #C71585;
                 font-weight: bold;
             }
             QLineEdit, QTimeEdit {
-                border: 2px solid
+                border: 2px solid #FF69B4;
                 border-radius: 6px;
                 padding: 4px;
                 background-color: white;
-                color:
+                color: #C71585;
                 font-weight: bold;
             }
             QSlider::groove:horizontal {
-                border: 1px solid
+                border: 1px solid #FF69B4;
                 height: 8px;
                 background: white;
                 border-radius: 4px;
             }
             QSlider::handle:horizontal {
-                background:
-                border: 1px solid
+                background: #FF1493;
+                border: 1px solid #C71585;
                 width: 16px;
                 height: 16px;
                 margin: -4px 0;
@@ -203,6 +203,7 @@ class CatDashboard(QWidget):
         self.setLayout(layout)
 
     def toggle_follow(self, state):
+
         is_checked = (state == 2)
         self.mascot.follow_cursor = is_checked
         self.mascot.follow_action.setChecked(is_checked)
@@ -210,9 +211,11 @@ class CatDashboard(QWidget):
             self.mascot.make_decision()
 
     def change_size(self, size_str):
+
         w, h = map(int, size_str.split(" x "))
         self.mascot.mascot_size = QSize(w, h)
         self.mascot.load_sprites()
+
         self.mascot.resize(w * 2, h * 2)
         self.mascot.update()
 
@@ -235,10 +238,12 @@ class CatDashboard(QWidget):
         self.stop_alarm_btn.setEnabled(False)
 
     def feed_cat(self):
+
         self.mascot.start_eating()
         self.status_val.setText("😋 Nyam Nyam Enak!")
 
     def call_cat(self):
+
         screen_geometry = QGuiApplication.primaryScreen().availableGeometry()
         start_x = screen_geometry.width() // 2 - self.mascot.mascot_size.width() // 2
         start_y = screen_geometry.height() // 2 - self.mascot.mascot_size.height() // 2
@@ -266,7 +271,6 @@ class CatDashboard(QWidget):
             "reminder": "⏰ Pengingat: Lompat-Lompat!"
         }
         self.status_val.setText(state_labels.get(self.mascot.state, "🧍 Santai"))
-
 
 class DesktopMate(QWidget):
     def __init__(self):
@@ -436,6 +440,7 @@ class DesktopMate(QWidget):
             path = get_resource_path(filename)
             if not os.path.exists(path):
                 if "reminder" in name:
+
                     dir_part = "left" if "left" in name else "right"
                     frame_num = "1" if "1" in name else "2"
                     fallback_path = get_resource_path(f"assets/walk_{dir_part}_{frame_num}.png")
@@ -503,6 +508,7 @@ class DesktopMate(QWidget):
         def hook_proc(nCode, wParam, lParam):
             if nCode >= 0:
                 if wParam == 0x020A:
+
                     try:
                         ms = ctypes.cast(lParam, ctypes.POINTER(MSLLHOOKSTRUCT)).contents
                         raw_delta = ms.mouseData >> 16
@@ -527,6 +533,7 @@ class DesktopMate(QWidget):
             print(f"Warning: Low-level mouse hook failed with code {ctypes.GetLastError()}")
 
     def on_mouse_scroll(self, delta):
+
         if self.state in ("sleep", "sleep_roll") or self.is_dragging or self.alarm_firing:
             return
 
@@ -535,14 +542,17 @@ class DesktopMate(QWidget):
         self.scroll_timer.start(300)
 
         if self.state != "scroll":
+
             self.anim_frame = 1
             self.change_state("scroll")
         else:
+
             self.anim_frame = 2 if self.anim_frame == 1 else 1
             self.update()
 
     def stop_scroll(self):
         if self.state == "scroll":
+
             if self.scroll_streak >= 15:
                 self.scroll_streak = 0
                 self.change_state("exhausted")
@@ -555,6 +565,7 @@ class DesktopMate(QWidget):
                     self.make_decision()
 
     def poll_keyboard(self):
+
         if self.state == "sleep" or self.alarm_firing:
             return
 
@@ -594,6 +605,7 @@ class DesktopMate(QWidget):
             self.on_key_press()
 
     def on_key_press(self):
+
         if self.state == "sleep":
             return
 
@@ -626,10 +638,12 @@ class DesktopMate(QWidget):
                 self.update()
 
     def stop_typing(self):
+
         was_angry = (self.state == "angry")
         self.typing_streak = 0
         if self.state in ("typing", "angry"):
             if was_angry:
+
                 self.change_state("exhausted")
                 self.exhausted_timer.start(3000)
             else:
@@ -640,6 +654,7 @@ class DesktopMate(QWidget):
 
     def start_transition_idle(self):
         if self.state == "exhausted":
+
             self.change_state("exhausted_transition")
             self.transition_timer.start(500)
 
@@ -651,6 +666,7 @@ class DesktopMate(QWidget):
                 self.make_decision()
 
     def start_sleep_roll(self):
+
         self.change_state("sleep_roll")
         self.roll_frame_idx = 0
         self.roll_timer.start(300)
@@ -664,13 +680,16 @@ class DesktopMate(QWidget):
         if self.roll_frame_idx <= 5:
             self.update()
         else:
+
             self.roll_timer.stop()
             self.change_state("sleep")
             self.sleep_duration_ticks = 0
 
     def start_eating(self):
+
         self.energy = min(100.0, self.energy + 35.0)
         self.change_state("eat")
+
         self.eat_timer.start(3000)
 
     def stop_eating(self):
@@ -712,12 +731,14 @@ class DesktopMate(QWidget):
                 self.make_decision()
 
     def closeEvent(self, event):
+
         if hasattr(self, 'mouse_hook') and self.mouse_hook:
             ctypes.windll.user32.UnhookWindowsHookEx(self.mouse_hook)
             self.mouse_hook = None
         event.accept()
 
     def init_ui(self):
+
         self.setWindowFlags(
             Qt.WindowType.FramelessWindowHint |
             Qt.WindowType.WindowStaysOnTopHint |
@@ -725,6 +746,7 @@ class DesktopMate(QWidget):
         )
 
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+
         self.resize(self.mascot_size.width() * 2, self.mascot_size.height() * 2)
 
         self.setMouseTracking(True)
@@ -787,6 +809,7 @@ class DesktopMate(QWidget):
             self.dashboard.activateWindow()
 
     def force_sleep(self):
+
         self.energy = 0.0
         self.change_state("sleep")
 
@@ -892,10 +915,12 @@ class DesktopMate(QWidget):
             else:
                 self.anim_frame = 1
                 self.idle_ticks_since_blink += 1
+
                 if self.idle_ticks_since_blink > 15 and random.random() < 0.25:
                     self.is_blinking = True
                     self.idle_ticks_since_blink = 0
         elif self.state in ("scroll", "typing", "angry"):
+
             pass
         else:
             self.anim_frame = self.anim_frame + 1
@@ -929,11 +954,13 @@ class DesktopMate(QWidget):
                 self.start_alarm()
 
         if self.state == "reminder":
+
             if not hasattr(self, 'reminder_bounce_tick'):
                 self.reminder_bounce_tick = 0
             self.reminder_bounce_tick += 1
 
             import math
+
             bounce = abs(math.sin(self.reminder_bounce_tick * 0.15)) * 60
             target_y = max_y - int(bounce)
 
@@ -964,6 +991,7 @@ class DesktopMate(QWidget):
         max_y = screen_geometry.bottom() - self.height()
 
         if self.state == "sleep":
+
             self.energy = min(100.0, self.energy + 0.02)
 
             x = max(min_x, min(x, max_x))
@@ -984,6 +1012,7 @@ class DesktopMate(QWidget):
             return
 
         if self.state in ("typing", "angry", "eat", "play_heart", "exhausted", "exhausted_transition", "sleep_roll", "scroll"):
+
             if self.state == "sleep_roll":
                 self.energy = min(100.0, self.energy + 0.02)
             self.update_hearts()
@@ -1009,6 +1038,7 @@ class DesktopMate(QWidget):
             return
 
         if not self.follow_cursor:
+
             x = max(min_x, min(x, max_x))
             y = max(min_y, min(y, max_y))
 
@@ -1028,6 +1058,7 @@ class DesktopMate(QWidget):
                         self.change_state("walk_left")
                     self.move(x, y)
                 else:
+
                     self.move(x, y)
 
             self.update_hearts()
@@ -1038,6 +1069,7 @@ class DesktopMate(QWidget):
 
         cursor_pos = QCursor.pos()
         target_x = cursor_pos.x() - self.width() // 2
+
         target_y = cursor_pos.y() - self.height()
 
         dx = target_x - x
@@ -1059,6 +1091,7 @@ class DesktopMate(QWidget):
                 self.state = "walk_right"
                 self.direction = "right"
         else:
+
             if self.is_hovered:
                 self.state = "pet"
             else:
@@ -1081,6 +1114,7 @@ class DesktopMate(QWidget):
             heart['x'] += heart['speed_x']
             heart['y'] -= heart['speed_y']
             heart['alpha'] -= 6.0
+
             if heart['alpha'] > 0 and heart['y'] > 0:
                 active_hearts.append(heart)
         self.hearts = active_hearts
@@ -1093,6 +1127,7 @@ class DesktopMate(QWidget):
         horizontal_padding = (w - self.mascot_size.width()) // 2
 
         hx = horizontal_padding + random.uniform(self.mascot_size.width() * 0.25, self.mascot_size.width() * 0.75)
+
         hy = vertical_padding + random.uniform(self.mascot_size.height() * 0.1, self.mascot_size.height() * 0.3)
 
         pixel_size = max(1, self.mascot_size.width() // 50)
@@ -1146,12 +1181,14 @@ class DesktopMate(QWidget):
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
+
             vertical_padding = self.height() - self.mascot_size.height()
             horizontal_padding = (self.width() - self.mascot_size.width()) // 2
             x = event.position().x()
             y = event.position().y()
             if horizontal_padding <= x <= horizontal_padding + self.mascot_size.width() and y >= vertical_padding:
                 self.is_dragging = True
+
                 self.press_pos = event.globalPosition().toPoint()
                 self.drag_position = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
                 event.accept()
@@ -1176,8 +1213,10 @@ class DesktopMate(QWidget):
                     if self.dashboard:
                         self.dashboard.stop_alarm_btn.setEnabled(False)
                 else:
+
                     self.context_menu.exec(QCursor.pos())
             else:
+
                 if self.state != "sleep":
                     if self.is_hovered:
                         self.change_state("pet")
@@ -1217,6 +1256,7 @@ class DesktopMate(QWidget):
             rect_w = text_width + 16
             rect_h = text_height + 4
             rect_x = (w - rect_w) // 2
+
             rect_y = vertical_padding + int(self.mascot_size.height() * 0.15) - rect_h
 
             painter.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -1245,6 +1285,7 @@ class DesktopMate(QWidget):
             rect_w = text_width + 20
             rect_h = text_height + 8
             rect_x = (w - rect_w) // 2
+
             name_tag_height = fm.height() + 4
             rect_y = vertical_padding + int(self.mascot_size.height() * 0.15) - name_tag_height - rect_h - 10
 
@@ -1276,6 +1317,7 @@ class DesktopMate(QWidget):
             rect_w = text_width + 16
             rect_h = text_height + 4
             rect_x = (w - rect_w) // 2
+
             name_tag_height = fm.height() + 4
             rect_y = vertical_padding + int(self.mascot_size.height() * 0.15) - name_tag_height - rect_h - 10
 
@@ -1307,6 +1349,7 @@ class DesktopMate(QWidget):
 
         painter.setBrush(QColor(0, 0, 0))
         painter.drawRect(kb_x, kb_y, kb_w, kb_h)
+
         painter.setBrush(QColor(190, 190, 190))
         painter.drawRect(kb_x + 2, kb_y + 2, kb_w - 4, kb_h - 4)
 
@@ -1331,6 +1374,7 @@ class DesktopMate(QWidget):
         painter.drawEllipse(left_paw_x - 1, left_paw_y - 1, paw_radius + 2, paw_radius + 2)
         painter.setBrush(QColor(255, 255, 255))
         painter.drawEllipse(left_paw_x, left_paw_y, paw_radius, paw_radius)
+
         painter.setBrush(QColor(255, 182, 193))
         painter.drawEllipse(left_paw_x + paw_radius // 4, left_paw_y + paw_radius // 4, paw_radius // 2, paw_radius // 2)
 
